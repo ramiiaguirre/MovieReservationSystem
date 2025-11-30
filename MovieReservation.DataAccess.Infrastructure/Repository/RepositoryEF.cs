@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using Microsoft.EntityFrameworkCore;
 
 namespace MovieReservation.DataAccess.Infrastructure;

@@ -1,4 +1,4 @@
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +16,7 @@ public static class InfrastructureDependencyInjection
         
         // Repositorios
         services.AddScoped(typeof(IRepository<>), typeof(RepositoryEF<>));
+        services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
         
         return services;
     }

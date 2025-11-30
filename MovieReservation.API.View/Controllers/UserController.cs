@@ -1,4 +1,4 @@
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +42,7 @@ public class UserController : ControllerBase
         }
 
         var roles = new List<string>();
-        foreach (var rol in user.Roles ?? Enumerable.Empty<Rol>())
+        foreach (var rol in user.Roles ?? Enumerable.Empty<Role>())
         {
             Console.WriteLine(rol.Name);
             roles.Add(rol.Name);
@@ -53,6 +53,12 @@ public class UserController : ControllerBase
             Name = user.Name,
             Roles = roles.ToList()
         });
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateRole(RoleDTO request)
+    {
+        return Ok();
     }
     
 }

@@ -1,18 +1,19 @@
-using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 
-public class GetUsers : IGetUsers
+namespace MovieReservation.Logic.UseCases;
+public class RoleUseCases : IRoleUseCases
 {
-
     readonly IUserUnitOfWork _userUnitOfWork;
-    public GetUsers(IUserUnitOfWork userUnitOfWork)
+    
+    public RoleUseCases(IUserUnitOfWork userUnitOfWork)
     {
         _userUnitOfWork = userUnitOfWork;
     }
 
-    public async Task<IEnumerable<User>> Execute()
+    public async Task<IEnumerable<User>> ExecuteAddRole()
     {
         var users = await _userUnitOfWork.Users.Get();
         return users;
     }
+
 }

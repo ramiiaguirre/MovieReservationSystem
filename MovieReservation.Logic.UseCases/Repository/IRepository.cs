@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MovieReservation.Logic.Repository;
+namespace MovieReservation.Logic.UseCases;
 
 public interface IRepository<T>
 {

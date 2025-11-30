@@ -7,6 +7,6 @@ public class User {
 
     public string Password { get; set; } = default!;
 
-    public ICollection<Rol>? Roles { get; set; }
+    public ICollection<Role>? Roles { get; set; }
 
 }
