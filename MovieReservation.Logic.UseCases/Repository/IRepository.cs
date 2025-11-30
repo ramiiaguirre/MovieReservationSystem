@@ -15,5 +15,5 @@ public interface IRepository<T>
     Task Delete(int id);
     Task<T> Update(T data);
 
-    Task Save();
+    // Task Save();
 }

@@ -1,18 +1,18 @@
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 
 public class SignUp : ISignUp
 {
-    private readonly IRepository<User> _repository = default!;
-    public SignUp(IRepository<User> repository)
+    private readonly IUserUnitOfWork _userUnitOfWork = default!;
+    public SignUp(IUserUnitOfWork userUnitOfWork)
     {
-        _repository = repository;
+        _userUnitOfWork = userUnitOfWork;
     }
 
     public async Task<User> Execute(User user)
     {
-        var userCreated = await _repository.Add(user);
-        await _repository.Save();
+        var userCreated = await _userUnitOfWork.Users.Add(user);
+        await _userUnitOfWork.Save();
         return userCreated;
     }
     

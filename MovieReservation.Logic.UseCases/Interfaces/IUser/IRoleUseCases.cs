@@ -3,5 +3,7 @@ using MovieReservation.Model.Domain;
 namespace MovieReservation.Logic.UseCases;
 public interface IRoleUseCases
 {
-    Task<IEnumerable<User>> ExecuteAddRole();
+    Task<Role> ExecuteAddRole(Role role);
+
+    Task ExecuteAddRoleToUser(long idUser, long idRole);
 }

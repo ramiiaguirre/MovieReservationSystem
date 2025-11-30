@@ -1,5 +1,4 @@
 using MovieReservation.API.View.Helpers;
-using MovieReservation.Logic.Repository;
 using MovieReservation.Model.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,4 @@
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 
 public class GetUserById : IGetUserById

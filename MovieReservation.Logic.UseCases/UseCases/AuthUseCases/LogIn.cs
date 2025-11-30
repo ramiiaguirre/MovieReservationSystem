@@ -1,17 +1,17 @@
-using MovieReservation.Logic.Repository;
+using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 
 public class LogIn : ILogIn
 {
-    private readonly IRepository<User> _repository = default!;
-    public LogIn(IRepository<User> repository)
+    private readonly IUserUnitOfWork _userUnitOfWork;
+    public LogIn(IUserUnitOfWork userUnitOfWork)
     {
-        _repository = repository;
+        _userUnitOfWork = userUnitOfWork;
     }
 
     public async Task<User?> Execute(string name, string passwordHash)
     {
-        var loggedInUser = await _repository.Get(
+        var loggedInUser = await _userUnitOfWork.Users.Get(
             u => u.Name == name && u.Password == passwordHash, 
             u => u.Roles!
         );

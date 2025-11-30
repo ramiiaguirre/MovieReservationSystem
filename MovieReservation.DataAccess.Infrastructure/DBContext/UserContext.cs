@@ -7,10 +7,14 @@ public static class UserContextCreating
     {
         modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("Users");
+            entity.ToTable("User", tb => tb.HasTrigger("User_update_at"));
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Name).IsRequired().HasMaxLength(60);
-            entity.Property(u => u.Password).IsRequired(false).HasMaxLength(100);
+            entity.Property(u => u.Password).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.CreatedAt)
+                .HasColumnName("created_at").HasDefaultValueSql("GETDATE()");
+            entity.Property(u => u.UpdatedAt)
+                .HasColumnName("updated_at").HasDefaultValueSql("GETDATE()");
             entity.HasMany(u => u.Roles)
                 .WithMany(u => u.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -22,7 +26,7 @@ public static class UserContextCreating
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.ToTable("Roles");
+            entity.ToTable("Role");
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Name).IsRequired().HasMaxLength(60);
             entity.Property(r => r.Description).IsRequired(false).HasMaxLength(120);
@@ -36,7 +40,7 @@ public static class UserContextCreating
 
         modelBuilder.Entity<Permission>(entity =>
         {
-            entity.ToTable("Permissions");
+            entity.ToTable("Permission");
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Name).IsRequired().HasMaxLength(60);
             entity.Property(r => r.Description).IsRequired(false).HasMaxLength(120);

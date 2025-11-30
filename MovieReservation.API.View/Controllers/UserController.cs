@@ -11,13 +11,13 @@ public class UserController : ControllerBase
 {
     private readonly IGetUserById _getUserById;
     private readonly IGetUsers _getUsers;
-    private readonly ICreateUser _createUser;
+    private readonly IRoleUseCases _roleUseCases;
 
-    public UserController(IGetUserById getUserById, IGetUsers getUsers, ICreateUser createUser)
+    public UserController(IGetUserById getUserById, IGetUsers getUsers, IRoleUseCases roleUseCases)
     {
         _getUserById = getUserById;
         _getUsers = getUsers;
-        _createUser = createUser;
+        _roleUseCases = roleUseCases;
     }
 
     [Authorize(Roles = "Admin")]
@@ -56,9 +56,46 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
+    [Route("createRole")]
     public async Task<ActionResult> CreateRole(RoleDTO request)
     {
-        return Ok();
+        var roleCreated = await _roleUseCases.ExecuteAddRole(
+            new Role
+            {
+                Name = request.Name,
+                Description = request.Description
+            }
+        );
+
+        if (roleCreated.Id != 0)
+        {
+            // return Created("url/role/id", roleCreated);
+            return StatusCode(201, roleCreated);
+        }
+        else
+        {
+            return Ok(new
+            {
+                message = "Role not created"
+            });
+        }
     }
     
+
+    [HttpPost]
+    [Route("addRoleToUser")]
+    public async Task<ActionResult> AddRoleToUser(UserRoleDTO request)
+    {
+        try
+        {
+            await _roleUseCases.ExecuteAddRoleToUser(request.IdUser, request.IdRole);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e);
+        }
+
+    }
+
 }
