@@ -21,12 +21,16 @@ public class RepositoryEF<T> : IRepository<T> where T : class
         return data;
     }
 
-    public async Task Delete(int id)
+    public async Task<bool> Delete(long id)
     {
         T? data = await _dbSet.FindAsync(id);
 
         if (data is not null)
+        {
             _dbSet.Remove(data);
+            return true;
+        }
+        return false;
     }
 
     public async Task<T?> Get(long id)

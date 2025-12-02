@@ -17,6 +17,7 @@ public static class InfrastructureDependencyInjection
         // Repositorios
         services.AddScoped(typeof(IRepository<>), typeof(RepositoryEF<>));
         services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
+        services.AddScoped<IMovieUnitOfWork, MovieUnitOfWork>();
         
         return services;
     }

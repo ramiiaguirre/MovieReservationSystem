@@ -9,6 +9,7 @@ public class MovieReservationContext : DbContext
         : base(options) {}
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Movie> Movies { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -16,6 +17,7 @@ public class MovieReservationContext : DbContext
     {
 
         UserContextCreating.ModelUserCreating(modelBuilder);
+        MovieContextCreating.ModelMovieCreating(modelBuilder);
         
     }
 }

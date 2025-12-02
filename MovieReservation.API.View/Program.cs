@@ -25,6 +25,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthUseCases();
 builder.Services.AddUserUseCases();
+builder.Services.AddMovieUseCases();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<UtilsJWT>();

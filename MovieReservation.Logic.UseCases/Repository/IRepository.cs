@@ -12,7 +12,7 @@ public interface IRepository<T>
 
     Task<IEnumerable<T>> Get();
     Task<T> Add(T data);
-    Task Delete(int id);
+    Task<bool> Delete(long id);
     Task<T> Update(T data);
 
     // Task Save();
