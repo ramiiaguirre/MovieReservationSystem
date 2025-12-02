@@ -17,10 +17,18 @@ public static class UserContextCreating
                 .HasColumnName("updated_at").HasDefaultValueSql("GETDATE()");
             entity.HasMany(u => u.Roles)
                 .WithMany(u => u.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserRole", 
-                    j => j.HasOne<Role>().WithMany().HasForeignKey("UserRole_Role_FK"),
-                    j => j.HasOne<User>().WithMany().HasForeignKey("UserRole_User_FK")
+                .UsingEntity<UserRole>(
+                    e => e.HasOne(ur => ur.Role).WithMany()
+                        .HasForeignKey(ur => ur.UserRole_Role_FK).HasConstraintName("UserRole_Role_FK"),
+                    e => e.HasOne(ur => ur.User).WithMany()
+                       .HasForeignKey(ur => ur.UserRole_User_FK).HasConstraintName("UserRole_User_FK"),
+                    e =>
+                    {
+                        e.ToTable("UserRole");
+                        // e.HasKey(ur => new { ur.UserRole_User_FK, ur.UserRole_Role_FK });
+                        e.Property(ur => ur.AssignedAt).HasColumnName("assigned_at").IsRequired();
+                        e.Property(ur => ur.AssignedBy).HasColumnName("assigned_by").IsRequired();
+                    }
                 );
         });
 

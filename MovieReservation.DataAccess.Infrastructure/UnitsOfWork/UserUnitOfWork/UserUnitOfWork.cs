@@ -7,6 +7,7 @@ public class UserUnitOfWork : IUserUnitOfWork
 
     MovieReservationContext _context;
     IRepository<User>? _users;
+    IRepository<UserRole>? _userRoles;
     IRepository<Role>? _roles;
     IRepository<Permission>? _permissions;
 
@@ -18,6 +19,8 @@ public class UserUnitOfWork : IUserUnitOfWork
     public IRepository<User> Users  
         => _users == null ? _users = new RepositoryEF<User>(_context) : _users;      
 
+    public IRepository<UserRole> UserRoles 
+        => _userRoles == null ? _userRoles = new RepositoryEF<UserRole>(_context) : _userRoles;      
     public IRepository<Role> Roles
         => _roles == null ? _roles = new RepositoryEF<Role>(_context) : _roles;
 

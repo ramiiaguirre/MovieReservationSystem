@@ -2,6 +2,7 @@ using MovieReservation.Logic.UseCases;
 using MovieReservation.Model.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MovieReservation.API.View.Controllers;
 
@@ -82,13 +83,17 @@ public class UserController : ControllerBase
     }
     
 
-    [HttpPost]
+    [HttpPost]  
     [Route("addRoleToUser")]
+    [Authorize]
     public async Task<ActionResult> AddRoleToUser(UserRoleDTO request)
     {
         try
         {
-            await _roleUseCases.ExecuteAddRoleToUser(request.IdUser, request.IdRole);
+            var userIdClaim = base.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            long idUserWhoAssigns = Convert.ToInt64(userIdClaim);
+
+            await _roleUseCases.ExecuteAddRoleToUser(request.IdUser, request.IdRole, idUserWhoAssigns);
             return Ok();
         }
         catch (Exception e)

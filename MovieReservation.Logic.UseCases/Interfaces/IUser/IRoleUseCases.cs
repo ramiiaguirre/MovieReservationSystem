@@ -5,5 +5,5 @@ public interface IRoleUseCases
 {
     Task<Role> ExecuteAddRole(Role role);
 
-    Task ExecuteAddRoleToUser(long idUser, long idRole);
+    Task ExecuteAddRoleToUser(long idUser, long idRole, long idUserWhoAssigns);
 }

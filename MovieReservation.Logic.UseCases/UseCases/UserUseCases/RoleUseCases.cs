@@ -17,18 +17,24 @@ public class RoleUseCases : IRoleUseCases
         return roleCreated;
     }
 
-    public async Task ExecuteAddRoleToUser(long idUser, long idRole)
+    public async Task ExecuteAddRoleToUser(long idUser, long idRole, long idUserWhoAssigns)
     {
-        // Obtener el usuario y el role
-        var user = await _userUnitOfWork.Users.Get(idUser, u => u.Roles);
-        if (user is null)
-            return;
-
-        var role = await _userUnitOfWork.Roles.Get(idRole);
-        if (role is null)
-            return;
+        // Verificar que no exista la relación
+        var exists = await _userUnitOfWork.UserRoles
+            .Get(ur => ur.UserRole_User_FK == idUser && ur.UserRole_Role_FK == idRole);
         
-        user!.Roles!.Add(role);
+        if (exists is not null)
+            throw new Exception("Relationship already exists");
+            
+        var userRole = new UserRole
+        {
+            UserRole_User_FK = idUser,
+            UserRole_Role_FK = idRole,
+            AssignedAt = DateTime.Now.Date,
+            AssignedBy = idUserWhoAssigns
+        };
+        
+        await _userUnitOfWork.UserRoles.Add(userRole);
         await _userUnitOfWork.Save();
     }
 }
