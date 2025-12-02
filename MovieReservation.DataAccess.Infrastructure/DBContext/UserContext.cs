@@ -40,10 +40,13 @@ public static class UserContextCreating
             entity.Property(r => r.Description).IsRequired(false).HasMaxLength(120);
             entity.HasMany(r => r.Permissions)
                 .WithMany(r => r.Roles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RolePermission",
-                    p => p.HasOne<Permission>().WithMany().HasForeignKey("RolePermission_Permission_FK"),
-                    p => p.HasOne<Role>().WithMany().HasForeignKey("RolePermission_Role_FK"));
+                .UsingEntity<RolePermission>(
+                    e => e.HasOne(rp => rp.Permission).WithMany()
+                        .HasForeignKey(rp => rp.RolePermission_Permission_FK).HasConstraintName("RolePermission_Permission_FK"),
+                    e => e.HasOne(rp => rp.Role).WithMany()
+                        .HasForeignKey(rp => rp.RolePermission_Role_FK).HasConstraintName("RolePermission_Role_FK"),
+                    e =>  e.ToTable("RolePermission")
+                );
         });
 
         modelBuilder.Entity<Permission>(entity =>
