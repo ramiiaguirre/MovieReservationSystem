@@ -35,8 +35,8 @@ public class JwtManager
         //Create user info for the token 
         var userClaims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Name),
-            new Claim(ClaimTypes.Role, user.Roles!.First() ?? string.Empty)
+            new Claim(ClaimTypes.NameIdentifier, user.Name)
+            // new Claim(ClaimTypes.Role, user.Roles!.First() ?? string.Empty)
         };
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Key!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);

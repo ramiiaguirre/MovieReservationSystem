@@ -40,7 +40,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryEF<>));
 
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 
 var app = builder.Build();

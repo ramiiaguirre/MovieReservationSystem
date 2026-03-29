@@ -1,7 +1,7 @@
 ﻿namespace MovieReservation.Services;
 
-public record SignUpDTO
+public class MovieDTO
 {
     public string Name { get; set; } = default!;
-    public string Password { get; set; } = default!;
+    public string? Description { get; set; }
 }

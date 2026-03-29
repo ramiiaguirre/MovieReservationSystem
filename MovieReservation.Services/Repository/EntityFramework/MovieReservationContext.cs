@@ -56,5 +56,14 @@ public class MovieReservationContext : DbContext
             entity.Property(r => r.CreateAt).IsRequired();
             entity.Property(r => r.UpdateAt).IsRequired();
         });
+
+        modelBuilder.Entity<Movie>(entity =>
+        {
+            entity.ToTable("Movies");
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Name).IsRequired();
+            entity.Property(m => m.Description).IsRequired(false);
+            entity.Property(m => m.ShowTime).IsRequired();
+        });
     }
 }

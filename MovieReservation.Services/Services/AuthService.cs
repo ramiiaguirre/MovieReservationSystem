@@ -19,6 +19,16 @@ public class AuthService : IAuthService
     {
         // First To do Validations
 
+        // var users = await _repository.Find(new Dictionary<string, object>()
+        // {
+        //     ["Name"] = request.Name
+        // });
+
+        var user = _repository.Get(request.Name);
+
+        if (user.Result is not null)
+            throw new Exception($"User called {request.Name} already exist.");
+
         var userCreated = await _repository.Add(new User()
         {
             Name = request.Name,
@@ -32,12 +42,26 @@ public class AuthService : IAuthService
             Name = userCreated.Name
         };
     }
-    public Task<UserDTO> LogIn(LogInDTO request)
+    public async Task<UserDTO> LogIn(LogInDTO request)
     {
-        throw new NotImplementedException();
+        var users = await _repository.Find(new Dictionary<string, object>()
+        {
+            ["Name"] = request.Name
+        });
+
+        if (users is not null)
+        {
+            return new UserDTO()
+            {
+                Name = users.First().Name
+                // Roles = users.First().Roles!.Select(r => r.Name).ToList()
+            };
+        }
+        else
+            return new UserDTO();
     }
 
-    public Task<UserDTO> LogOut(SignUpDTO request)
+    public Task<UserDTO> LogOut()
     {
         throw new NotImplementedException();
     }
