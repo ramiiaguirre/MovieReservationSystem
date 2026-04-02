@@ -31,14 +31,24 @@ public class MovieService : IMovieService
         };
     }
 
-    public Task<bool> DeleteMovie(long id)
+    public async Task<bool> DeleteMovie(long id)
     {
-        throw new NotImplementedException();
+        await _repository.Delete(id);
+        return true;
     }
 
-    public Task<IEnumerable<MovieDTO>> GetMovie(long id)
+    public async Task<MovieDTO?> GetMovie(long id)
     {
-        throw new NotImplementedException();
+        var movie = await _repository.Get(id);
+        if (movie is null)
+            return null;
+
+        return new MovieDTO()
+        {
+            Id = movie.Id,
+            Name = movie.Name,
+            Description = movie.Description
+        };
     }
 
     public Task<IEnumerable<MovieDTO>> GetMovies()
@@ -56,8 +66,24 @@ public class MovieService : IMovieService
         throw new NotImplementedException();
     }
 
-    public Task<MovieDTO> UpdateMovie(MovieDTO request)
+    public async Task<MovieDTO?> UpdateMovie(MovieDTO request)
     {
-        throw new NotImplementedException();
+        var movie = await _repository.Get(request.Id);
+
+        if (movie is null)
+            return null;
+
+        movie.Id = request.Id;
+        movie.Name = request.Name;
+        movie.Description = request.Description;
+        
+        movie = await _repository.Update(movie);
+
+        return new MovieDTO()
+        {
+            Id = movie.Id,
+            Name = movie.Name,
+            Description = movie.Description
+        };
     }
 }
