@@ -32,12 +32,10 @@ public class JwtManager
     
     public string GenerateJWT(UserDTO user)
     {
-        //Create user info for the token 
-        var userClaims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Name)
-            // new Claim(ClaimTypes.Role, user.Roles!.First() ?? string.Empty)
-        };
+        //Create user info for the token
+        var userClaims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Name) }
+            .Concat(user.Roles?.Select(r => new Claim(ClaimTypes.Role, r)) ?? [])
+            .ToArray();
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Key!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 

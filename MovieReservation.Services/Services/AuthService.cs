@@ -42,23 +42,23 @@ public class AuthService : IAuthService
             Name = userCreated.Name
         };
     }
-    public async Task<UserDTO> LogIn(LogInDTO request)
+    public async Task<UserDTO?> LogIn(LogInDTO request)
     {
-        var users = await _repository.Find(new Dictionary<string, object>()
-        {
-            ["Name"] = request.Name
-        });
+        var users = await _repository.Find(
+            u => u.Name == request.Name,
+            u => u.Roles!
+        );
 
-        if (users is not null)
+        var user = users?.FirstOrDefault();
+
+        if (user is null || !_passwordHasher.VerifyPassword(request.Password, user.Password))
+            return null;
+
+        return new UserDTO()
         {
-            return new UserDTO()
-            {
-                Name = users.First().Name
-                // Roles = users.First().Roles!.Select(r => r.Name).ToList()
-            };
-        }
-        else
-            return new UserDTO();
+            Name = user.Name,
+            Roles = user.Roles?.Select(r => r.Name).ToList() ?? new List<string>()
+        };
     }
 
     public Task<UserDTO> LogOut()

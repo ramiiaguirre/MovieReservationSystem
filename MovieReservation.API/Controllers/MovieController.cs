@@ -22,7 +22,7 @@ public class MovieController : ControllerBase
 	// - [GET]		/movies/{id_movie}/showtimes?date={date}	#See showtimes of the movie for a specific date
 
     [HttpPost]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<Results<Created<ApiResponse<MovieDTO>>, BadRequest<ProblemDetails>, Conflict<ProblemDetails>>> CreateMovie([FromBody] MovieDTO request)
     {
         try

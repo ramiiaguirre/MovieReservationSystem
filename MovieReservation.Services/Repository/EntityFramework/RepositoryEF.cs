@@ -1,4 +1,4 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MovieReservation.Services;
@@ -28,17 +28,14 @@ public class RepositoryEF<T> : IRepository<T> where T : class
             _dbSet.Remove(data);
     }
 
-    public async Task<IEnumerable<T>> Find(Dictionary<string, object> filters)
+    public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {
         var query = _dbContext.Set<T>().AsQueryable();
 
-        foreach (var (key, value) in filters)
-        {
-            // System.Linq.Dynamic.Core
-            query = query.Where($"{key} == @0", value);
-        }
+        foreach (var include in includes)
+            query = query.Include(include);
 
-        return await query.ToListAsync();
+        return await query.Where(predicate).ToListAsync();
     }
 
     public async Task<T?> Get(long id)
