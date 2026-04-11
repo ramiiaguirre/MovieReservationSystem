@@ -11,7 +11,7 @@ public class Movie
 
     public string? Description { get; private set; } = default!;
 
-    public DateTime ShowTime { get; set; }
+    // public Genre Genre { get; set; }
 
     public Movie(string name, string? description = null)
     {

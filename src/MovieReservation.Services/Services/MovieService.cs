@@ -10,7 +10,7 @@ public class MovieService : IMovieService
         _repository = repository;
     }
 
-    public async Task<MovieDTO> CreateMovie(MovieDTO request)
+    public async Task<MovieResponse> CreateMovie(MovieCreateRequest request)
     {
         var movie = _repository.Get(request.Name);
 
@@ -21,10 +21,7 @@ public class MovieService : IMovieService
 
         await _repository.Save();
 
-        return new MovieDTO()
-        {
-            Name = movieCreated.Name
-        };
+        return MovieResponse.FromMovie(movieCreated);
     }
 
     public async Task<bool> DeleteMovie(long id)
@@ -33,53 +30,50 @@ public class MovieService : IMovieService
         return true;
     }
 
-    public async Task<MovieDTO?> GetMovie(long id)
+    public async Task<MovieResponse?> GetMovie(long id)
     {
         var movie = await _repository.Get(id);
         if (movie is null)
             return null;
 
-        return new MovieDTO()
-        {
-            Id = movie.Id,
-            Name = movie.Name,
-            Description = movie.Description
-        };
+        return MovieResponse.FromMovie(movie);
     }
 
-    public Task<IEnumerable<MovieDTO>> GetMovies()
+    public async Task<IEnumerable<MovieResponse>> GetMovies()
+    {
+        var movies = await _repository.GetAll();
+        return movies.Select((m) => MovieResponse.FromMovie(m));
+    }
+
+    public Task<IEnumerable<MovieResponse>> GetShowTimesOfMovie(long id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<MovieDTO>> GetShowTimesOfMovie(long id)
+    public Task<IEnumerable<MovieResponse>> GetShowTimesOfMovie(long id, DateTime dateTime)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<MovieDTO>> GetShowTimesOfMovie(long id, DateTime dateTime)
+    public async Task<MovieResponse?> UpdateMovie(MovieUpdateRequest request)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<MovieDTO?> UpdateMovie(MovieDTO request)
-    {
-        var movie = await _repository.Get(request.Id);
+        var movieId = request.Id ?? 0;
+        var movie = await _repository.Get(movieId);
 
         if (movie is null)
             return null;
 
-        movie.Id = request.Id;
-        movie.SetName(request.Name);
+        movie.Id = movieId;
+
+        if (request.Name is not null)
+            movie.SetName(request.Name);
+        
         movie.SetDescription(request.Description);
         
         movie = await _repository.Update(movie);
 
-        return new MovieDTO()
-        {
-            Id = movie.Id,
-            Name = movie.Name,
-            Description = movie.Description
-        };
+         await _repository.Save();
+
+        return MovieResponse.FromMovie(movie);
     }
 }

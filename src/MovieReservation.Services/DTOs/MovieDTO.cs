@@ -1,14 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MovieReservation.Domain;
 
 namespace MovieReservation.Services;
 
-public class MovieDTO
+
+public record MovieCreateRequest(
+    [Required] string Name,
+    [MaxLength(Movie.DescriptionMaxLength)] string? Description
+);
+
+public record MovieUpdateRequest(
+    [Required] long? Id,
+    string? Name,
+    [MaxLength(Movie.DescriptionMaxLength)] string? Description
+);
+
+public record MovieResponse(long Id, string Name, string? Description)
 {
-    public long Id { get; set; }
-
-    [Required]
-    public string Name { get; set; } = default!;
-
-    [Length(0, 120)]
-    public string? Description { get; set; }
+    public static MovieResponse FromMovie(Movie movie) =>
+        new(movie.Id, movie.Name, movie.Description);
 }

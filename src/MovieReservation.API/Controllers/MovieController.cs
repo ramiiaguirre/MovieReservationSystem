@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using MovieReservation.Domain;
 using MovieReservation.Services;
 
 namespace MovieReservation.API;
@@ -23,15 +21,15 @@ public class MovieController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<Results<Created<ApiResponse<MovieDTO>>, BadRequest<ProblemDetails>, Conflict<ProblemDetails>>> CreateMovie([FromBody] MovieDTO request)
+    public async Task<Results<Created<ApiResponse<MovieResponse>>, BadRequest<ProblemDetails>, Conflict<ProblemDetails>>> CreateMovie([FromBody] MovieCreateRequest request)
     {
         try
         {
-            MovieDTO movieCreated = await _movieService.CreateMovie(request);
+            var movieCreated = await _movieService.CreateMovie(request);
             
             if (!string.IsNullOrEmpty(movieCreated.Name))
             {   
-                return TypedResults.Created($"api/movies/{movieCreated.Id}", ApiResponse<MovieDTO>.Success(movieCreated));
+                return TypedResults.Created($"api/movies/{movieCreated.Id}", ApiResponse<MovieResponse>.Success(movieCreated));
             }
             else
             {   
@@ -53,17 +51,19 @@ public class MovieController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateMovie([FromBody] MovieDTO request)
+    public async Task<Results<Ok<ApiResponse<MovieResponse>>, NotFound<ProblemDetails>, Conflict<ProblemDetails>>> UpdateMovie([FromBody] MovieUpdateRequest request)
     {
-        try
+        var movieUpdated = await _movieService.UpdateMovie(request);
+        if (movieUpdated is null)
         {
-            MovieDTO? movieUpdated = await _movieService.UpdateMovie(request);
-            return StatusCode(StatusCodes.Status200OK, new { isSuccess = true });
+            return TypedResults.NotFound(new ProblemDetails()
+            {
+                Title = "Not Found",
+                Detail = $"Movie not found"
+            });
         }
-        catch(Exception e)
-        {
-            return StatusCode(StatusCodes.Status409Conflict, e.Message);
-        }
+
+        return TypedResults.Ok(ApiResponse<MovieResponse>.Success(movieUpdated));
     }
 
     [HttpDelete]
@@ -81,12 +81,29 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<Results<Ok<ApiResponse<List<MovieResponse>>>, NotFound<ProblemDetails>>> Get()
+    {
+        var movies = await _movieService.GetMovies();
+        if (movies is null)
+        {
+            return TypedResults.NotFound(new ProblemDetails()
+            {
+                Title = "Not Found",
+                Detail = "There are no movies"
+            });
+        }
+
+        return TypedResults.Ok(ApiResponse<List<MovieResponse>>.Success(movies.ToList()));
+    }
+
+
+    [HttpGet]
     [Route("{id}")]
-    public async Task<Results<Ok<ApiResponse<MovieDTO>>, NotFound<ProblemDetails>, Conflict<ProblemDetails>>> GetMovie(long id)
+    public async Task<Results<Ok<ApiResponse<MovieResponse>>, NotFound<ProblemDetails>, Conflict<ProblemDetails>>> GetMovie(long id)
     {
         try
         {
-            MovieDTO? movie = await _movieService.GetMovie(id);
+            var movie = await _movieService.GetMovie(id);
 
             if (movie is null)
             {
@@ -97,7 +114,7 @@ public class MovieController : ControllerBase
                 });
             }
 
-            return TypedResults.Ok(ApiResponse<MovieDTO>.Success(movie));
+            return TypedResults.Ok(ApiResponse<MovieResponse>.Success(movie));
         }
         catch (Exception e)
         {
