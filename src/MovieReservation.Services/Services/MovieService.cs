@@ -17,11 +17,7 @@ public class MovieService : IMovieService
         if (movie.Result is not null)
             throw new Exception($"Movie called {request.Name} already exist.");
 
-        var movieCreated = await _repository.Add(new Movie()
-        {
-            Name = request.Name,
-            Description = request.Description
-        });
+        var movieCreated = await _repository.Add(new Movie(request.Name, request.Description));
 
         await _repository.Save();
 
@@ -74,8 +70,8 @@ public class MovieService : IMovieService
             return null;
 
         movie.Id = request.Id;
-        movie.Name = request.Name;
-        movie.Description = request.Description;
+        movie.SetName(request.Name);
+        movie.SetDescription(request.Description);
         
         movie = await _repository.Update(movie);
 
