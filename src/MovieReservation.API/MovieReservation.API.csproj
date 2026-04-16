@@ -16,4 +16,8 @@
     <ProjectReference Include="..\MovieReservation.Services\MovieReservation.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>
