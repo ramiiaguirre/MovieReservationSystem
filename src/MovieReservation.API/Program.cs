@@ -45,7 +45,6 @@ builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

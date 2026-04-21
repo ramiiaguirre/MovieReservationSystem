@@ -10,9 +10,11 @@ namespace MovieReservation.API;
 public class MovieController : ControllerBase
 {
     private readonly IMovieService _movieService;
-    public MovieController(IMovieService movieService)
+    private readonly ILogger<MovieController> _logger;
+    public MovieController(IMovieService movieService, ILogger<MovieController> logger)
     {
         _movieService = movieService;
+        _logger = logger;
     }
 	
 	// - [GET]		/movies?{filters} 							#List filtering movies. For example: genre
@@ -102,38 +104,32 @@ public class MovieController : ControllerBase
             });
         }
 
+
+
         return TypedResults.Ok(ApiResponse<List<MovieResponse>>.Success(movies.ToList()));
     }
 
 
-    // [HttpGet]
-    // [Route("{id}")]
-    // public async Task<Results<Ok<ApiResponse<MovieResponse>>, NotFound<ProblemDetails>, Conflict<ProblemDetails>>> GetMovie(long id)
-    // {
-    //     try
-    //     {
-    //         var movie = await _movieService.GetMovie(id);
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<Results<Ok<ApiResponse<MovieResponse>>, NotFound<ProblemDetails>, Conflict<ProblemDetails>>> GetMovie(long id)
+    {
+        _logger.LogDebug("Fetching movie with ID {MovieId}", id);
+        var movie = await _movieService.GetMovie(id);
 
-    //         if (movie is null)
-    //         {
-    //             return TypedResults.NotFound(new ProblemDetails()
-    //             {
-    //                 Title = "Not Found",
-    //                 Detail = $"Movie {id} not found"
-    //             });
-    //         }
+        if (movie is null)
+        {
+            _logger.LogInformation("Movie ID {MovieId} not found", id);
+            return TypedResults.NotFound(new ProblemDetails()
+            {
+                Title = "Not Found",
+                Detail = $"Movie {id} not found"
+            });
+        }
 
-    //         return TypedResults.Ok(ApiResponse<MovieResponse>.Success(movie));
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         return TypedResults.Conflict(new ProblemDetails()
-    //         {
-    //             Title = "Conflict",
-    //             Detail = e.Message
-    //         });
-    //     }
-    // }
+        return TypedResults.Ok(ApiResponse<MovieResponse>.Success(movie));
+
+    }
 
 
 }
