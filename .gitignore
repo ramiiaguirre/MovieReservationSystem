@@ -59,5 +59,7 @@ obj/
 *.json
 
 *.db
+*.db-shm
+*.db-wal
 
 CLAUDE.md

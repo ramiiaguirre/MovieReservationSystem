@@ -39,6 +39,8 @@ builder.Services.AddSingleton<JwtManager>();
 builder.Services.AddDbContext<MovieReservationContext>(options =>
     options.UseSqlite("Data Source=../MovieReservation.db"));
 
+
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryEF<>));
 
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
@@ -52,6 +54,12 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MovieReservationContext>();
+    await db.Database.MigrateAsync();
 }
 
 app.UseExceptionHandler();
