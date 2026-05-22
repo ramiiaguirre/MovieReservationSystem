@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MovieReservation.API;
 using MovieReservation.Services;
@@ -22,20 +23,25 @@ public class AuthController : ControllerBase
     [HttpPost]
     [AllowAnonymous]
     [Route("signup")]
-    public async Task<IActionResult> SignUp([FromBody] SignUpDTO request)
+    public async Task<Results<
+        Created, 
+        Conflict<ProblemDetails>>>  
+        SignUp([FromBody] SignUpDTO request)
     {  
         try
         {
             UserDTO userCreated = await _authService.SignUp(request);
-            
-            if (!string.IsNullOrEmpty(userCreated.Name))
-                return StatusCode(StatusCodes.Status201Created, new { isSuccess = true });
-            else 
-                return StatusCode(StatusCodes.Status200OK, new { isSuccess = false });
+            return TypedResults.Created();
         }
         catch(Exception e)
         {
-            return StatusCode(StatusCodes.Status409Conflict, e.Message);
+            return TypedResults.Conflict(new ProblemDetails()
+            {
+                Title = "Movie Not Found",
+                Detail = $"{e.Message}",
+                Status = StatusCodes.Status409Conflict,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+            });
         }
 
     }
@@ -43,40 +49,51 @@ public class AuthController : ControllerBase
     [HttpPost]
     [AllowAnonymous]
     [Route("login")]
-    public async Task<IActionResult> LogIn(LogInDTO request)
+    public async Task<Results<
+        NotFound<ProblemDetails>, Ok>>
+         LogIn(LogInDTO request)
     {
         var user = await _authService.LogIn(request);
 
         if (user == null)
         {
-            return StatusCode(StatusCodes.Status404NotFound,
-                new { isSuccess = false, token = ""}
-            );
+            return TypedResults.NotFound(new ProblemDetails()
+            {
+                Title = "User Not Found",
+                Detail = $"User Not Found with the provided data",
+                Status = StatusCodes.Status404NotFound,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4"
+            });
         }
         else
         {
-            return StatusCode(StatusCodes.Status200OK,
-                new { isSuccess = true, token = _jwtManager.GenerateJWT(user)}
-            );
+            Response.Cookies.Append("jwt", _jwtManager.GenerateJWT(user), new CookieOptions()
+            {
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = true,
+            });
+            return TypedResults.Ok();
         }
     }
 
-    [HttpGet]
+    [HttpOptions]
     [Route("validarToken")]
     public IActionResult ValidateToken([FromQuery] string token)
     {
         bool IsValidToken = _jwtManager.ValidarToken(token);
-        return StatusCode(StatusCodes.Status200OK, new { isSuccess = IsValidToken });
+        return StatusCode(StatusCodes.Status200OK, IsValidToken);
     }
 
-    [HttpPost]
-    [Route("logout")]
-    public ActionResult LogOut()
-    {
-        //Client delete token
-        throw new NotImplementedException();
+    // [HttpPost]
+    // [Route("logout")]
+    // public ActionResult LogOut()
+    // {
+    //     //Client delete token
+    //     throw new NotImplementedException();
 
-        // To do Blacklist in Redis?
-    }
+    //     // To do Blacklist in Redis?
+    // }
 
 }

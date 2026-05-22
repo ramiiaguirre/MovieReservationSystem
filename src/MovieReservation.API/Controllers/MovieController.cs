@@ -55,7 +55,7 @@ public class MovieController : ControllerBase
     [HttpPut]
     [Authorize(Roles = "Admin")]
     public async Task<Results<
-        Ok<ApiResponse<MovieResponse>>,
+        Ok<MovieResponse>,
         NotFound<ProblemDetails>, 
         Conflict<ProblemDetails>>> 
         UpdateMovie([FromBody] MovieUpdateRequest request)
@@ -74,7 +74,7 @@ public class MovieController : ControllerBase
             });
         }
 
-        return TypedResults.Ok(ApiResponse<MovieResponse>.Success(movieUpdated));
+        return TypedResults.Ok(movieUpdated);
     }
 
     // [HttpDelete]
