@@ -10,7 +10,7 @@ public record MovieCreateRequest(
 );
 
 public record MovieUpdateRequest(
-    [Required] long? Id,
+    [Required] long Id,
     string? Name,
     [MaxLength(Movie.DescriptionMaxLength)] string? Description
 );

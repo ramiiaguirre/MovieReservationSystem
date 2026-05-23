@@ -26,8 +26,13 @@ public class MovieService : IMovieService
 
     public async Task<bool> DeleteMovie(long id)
     {
+        var movie = await _repository.Get(id);
+        if (movie is null) {
+            return false;
+        }
         await _repository.Delete(id);
-        return true;
+        await _repository.Save();
+        return true;        
     }
 
     public async Task<MovieResponse?> GetMovie(long id)
@@ -57,13 +62,12 @@ public class MovieService : IMovieService
 
     public async Task<MovieResponse?> UpdateMovie(MovieUpdateRequest request)
     {
-        var movieId = request.Id ?? 0;
-        var movie = await _repository.Get(movieId);
+        var movie = await _repository.Get(request.Id);
 
         if (movie is null)
             return null;
 
-        movie.Id = movieId;
+        movie.Id = request.Id;
 
         if (request.Name is not null)
             movie.SetName(request.Name);
