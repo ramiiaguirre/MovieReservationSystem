@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieReservation.Domain;
+using MovieReservation.Domain.Entities;
 
 namespace MovieReservation.Services;
 
@@ -9,6 +10,8 @@ public class MovieReservationContext : DbContext
         : base(options) { }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Seat> Seats { get; set; }
+    public DbSet<TheaterRoom> TheaterRooms { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -34,7 +37,7 @@ public class MovieReservationContext : DbContext
             entity.ToTable("Roles");
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Name).IsRequired().HasMaxLength(60);
-            entity.Property(r => r.Description).IsRequired(false).HasMaxLength(120);
+            entity.Property(r => r.Description).HasMaxLength(120);
             entity.Property(r => r.CreatedAt).IsRequired();
             entity.Property(r => r.UpdateAt).IsRequired();
             // Rol ↔ Permission (muchos a muchos)
@@ -64,5 +67,42 @@ public class MovieReservationContext : DbContext
             entity.Property(m => m.Name).IsRequired();
             entity.Property(m => m.Description).IsRequired(false);
         });
+
+        modelBuilder.Entity<TheaterRoom>(entity =>
+        {
+            entity.ToTable("TheaterRooms");
+            entity.HasKey(tr => tr.Id);
+            entity.Property(tr => tr.Name).IsRequired().HasMaxLength(100);
+            entity.Property(tr => tr.Description).HasMaxLength(200);
+            entity.Property(tr => tr.RoomType).IsRequired().HasMaxLength(50);
+            entity.Property(tr => tr.Capacity).IsRequired();;
+        });
+
+        modelBuilder.Entity<Seat>(entity =>
+        {
+            entity.ToTable("Seats");
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.RowLetter).IsRequired();
+            entity.Property(s => s.SeatNumber).IsRequired();
+            entity.Property(s => s.SeatType);
+            entity.Property(s => s.IsActive);
+            entity.HasOne<TheaterRoom>(s => s.TheaterRoom)
+                .WithMany(tr => tr.Seats)
+                .HasForeignKey(tr => tr.TheaterRoomId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(s => new {s.TheaterRoomId, s.RowLetter, s.SeatNumber}).IsUnique();
+        });
+
+        // modelBuilder.Entity<ShowTime>(entity =>
+        // {
+        //     entity.ToTable("ShowTimes");
+        //     entity.HasKey(show => show.Id);
+        //     entity.Property(show => show.ShowDateTime).IsRequired();
+        //     entity.Property(show => show.Duration).IsRequired();
+        //     entity.Property(show => show.Price).HasPrecision(10, 2);
+        //     entity.Property(show => show.IsActive).HasDefaultValue(true);
+        // });
+
     }
 }

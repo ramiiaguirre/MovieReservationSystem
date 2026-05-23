@@ -8,6 +8,8 @@ public class ShowTime
 
     public DateTime ShowDateTime { get; set; }
 
+    public TimeSpan Duration { get; set; }
+
     public decimal Price { get; set; }
 
     public bool IsActive { get; set; }

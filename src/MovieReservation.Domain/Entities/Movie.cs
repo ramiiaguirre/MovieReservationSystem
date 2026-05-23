@@ -11,6 +11,8 @@ public class Movie
 
     public string? Description { get; private set; } = default!;
 
+    public TimeSpan Duration { get; set; }
+
     // public Genre Genre { get; set; }
 
     public Movie(string name, string? description = null)

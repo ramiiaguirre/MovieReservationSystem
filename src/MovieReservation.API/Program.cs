@@ -1,8 +1,10 @@
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MovieReservation.API;
+using MovieReservation.API.Data;
 using MovieReservation.API.Extensions;
 using MovieReservation.Services;
 using Scalar.AspNetCore;
@@ -59,6 +61,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MovieReservationContext>();
     await db.Database.MigrateAsync();
+
+    if (app.Environment.IsDevelopment()) {
+        System.Console.WriteLine("Se están cargando las seeds");
+        await DatabaseSeeder.SeedAsync(db);
+        System.Console.WriteLine("Terminaron de cargar las seeds");
+    }
 }
 
 app.UseExceptionHandler();
