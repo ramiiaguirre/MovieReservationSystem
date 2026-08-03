@@ -39,6 +39,7 @@ public class AuthService : IAuthService
 
         return new UserDTO()
         {
+            Id = userCreated.Id,
             Name = userCreated.Name
         };
     }
@@ -49,15 +50,16 @@ public class AuthService : IAuthService
             u => u.Roles!
         );
 
-        var user = users?.FirstOrDefault();
+        User? user = users?.FirstOrDefault();
 
         if (user is null || !_passwordHasher.VerifyPassword(request.Password, user.Password))
             return null;
 
         return new UserDTO()
         {
+            Id = user.Id,
             Name = user.Name,
-            Roles = user.Roles?.Select(r => r.Name).ToList() ?? new List<string>()
+            Roles = user.Roles!.ToList()
         };
     }
 

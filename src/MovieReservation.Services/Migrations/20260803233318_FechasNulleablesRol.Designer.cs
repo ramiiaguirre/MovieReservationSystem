@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MovieReservation.Services;
 
@@ -10,9 +11,11 @@ using MovieReservation.Services;
 namespace MovieReservation.Services.Migrations
 {
     [DbContext(typeof(MovieReservationContext))]
-    partial class MovieReservationContextModelSnapshot : ModelSnapshot
+    [Migration("20260803233318_FechasNulleablesRol")]
+    partial class FechasNulleablesRol
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");

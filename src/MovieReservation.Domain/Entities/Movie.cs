@@ -13,14 +13,22 @@ public class Movie
 
     public TimeSpan Duration { get; set; }
 
-    // public Genre Genre { get; set; }
+    public Genre Genre { get; private set; }
 
-    public Movie(string name, string? description = null)
+    public virtual ICollection<ShowTime>? ShowTimes { get; set; }
+
+    public Movie(string name, Genre genre, string? description = null)
     {
         SetName(name);
+        SetGenre(genre);
         SetDescription(description);
     }
 
+
+    public void SetGenre(Genre genre)
+    {
+        Genre = genre;
+    }
 
     public void SetName(string name)
     {

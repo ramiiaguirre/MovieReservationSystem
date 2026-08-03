@@ -1,8 +1,12 @@
-﻿namespace MovieReservation.Services;
+﻿using MovieReservation.Domain;
+
+namespace MovieReservation.Services;
 
 public class UserDTO
 {
+    public long Id { get; set; }
+
     public string Name { get; set; } = default!;
 
-    public List<string> Roles { get; set; } = new List<string>();
+    public List<Rol> Roles { get; set; } = new List<Rol>();
 }

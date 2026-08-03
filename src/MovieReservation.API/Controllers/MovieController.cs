@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MovieReservation.Domain;
 using MovieReservation.Services;
 
 namespace MovieReservation.API;
@@ -10,20 +11,18 @@ namespace MovieReservation.API;
 public class MovieController : ControllerBase
 {
     private readonly IMovieService _movieService;
+    private readonly IShowTimeService _showTimeService;
     private readonly ILogger<MovieController> _logger;
-    public MovieController(IMovieService movieService, ILogger<MovieController> logger)
+    public MovieController(IMovieService movieService, IShowTimeService showTimeService, ILogger<MovieController> logger)
     {
         _movieService = movieService;
+        _showTimeService = showTimeService;
         _logger = logger;
     }
-	
-	// - [GET]		/movies?{filters} 							#List filtering movies. For example: genre
-	// - [GET]		/movies/{id_movie}/showtimes				#See showtimes of the movie
-	// - [GET]		/movies/{id_movie}/showtimes?date={date}	#See showtimes of the movie for a specific date
 
     [HttpPost]
-    // [Authorize(Roles = "Admin")]
-    public async Task<Results<Created<MovieResponse>, 
+    [Authorize(Roles = "Admin")]
+    public async Task<Results<Created<MovieResponse>,
         BadRequest<ProblemDetails>, 
         Conflict<ProblemDetails>>> 
         CreateMovie([FromBody] MovieCreateRequest request)
@@ -56,7 +55,7 @@ public class MovieController : ControllerBase
     }
 
     [HttpPut]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<Results<
         Ok<MovieResponse>,
         NotFound<ProblemDetails>, 
@@ -81,6 +80,7 @@ public class MovieController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     public async Task<Results<
         NoContent,
         NotFound<ProblemDetails>, 
@@ -113,9 +113,9 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Results<Ok<List<MovieResponse>>, NotFound<ProblemDetails>>> Get()
+    public async Task<Results<Ok<List<MovieResponse>>, NotFound<ProblemDetails>>> Get([FromQuery] Genre? genre)
     {
-        var movies = await _movieService.GetMovies();
+        var movies = await _movieService.GetMovies(genre);
         if (movies is null)
         {
             return TypedResults.NotFound(new ProblemDetails()
@@ -150,5 +150,22 @@ public class MovieController : ControllerBase
 
     }
 
+    [HttpGet]
+    [Route("{id}/showtimes")]
+    public async Task<Results<Ok<List<ShowTimeResponse>>, NotFound<ProblemDetails>>> GetShowtimes(long id, [FromQuery] DateTime? date)
+    {
+        var movie = await _movieService.GetMovie(id);
+        if (movie is null)
+        {
+            return TypedResults.NotFound(new ProblemDetails()
+            {
+                Title = "Not Found",
+                Detail = $"Movie {id} not found"
+            });
+        }
+
+        var showTimes = await _showTimeService.GetAll(movieId: id, date: date);
+        return TypedResults.Ok(showTimes.ToList());
+    }
 
 }

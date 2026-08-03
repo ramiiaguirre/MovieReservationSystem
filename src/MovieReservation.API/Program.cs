@@ -18,9 +18,16 @@ builder.Services.AddExceptionHandler<ExceptionControllerHandler>();
 
 builder.Services.AddOpenApiCustomConfig();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthorization()
+    .AddAuthentication(x => 
+    {
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }) 
     .AddJwtBearer(x =>
     {
+        x.RequireHttpsMetadata = false;
+        x.SaveToken = true;
         x.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -29,6 +36,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]!))
+        };
+        x.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.TryGetValue("jwt", out var token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
     
@@ -47,6 +65,9 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryEF<>));
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IShowTimeService, ShowTimeService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 var app = builder.Build();
 
@@ -54,7 +75,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(option =>
+    {
+        option.Authentication = new ScalarAuthenticationOptions
+        {
+            PreferredSecurityScheme = "Bearer"
+            // PreferredSecuritySchemes = new List<string>() { "Bearer" }
+        };
+    });
 }
 
 using (var scope = app.Services.CreateScope())
@@ -63,9 +91,9 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 
     if (app.Environment.IsDevelopment()) {
-        System.Console.WriteLine("Se están cargando las seeds");
+        Console.WriteLine("Se están cargando las seeds");
         await DatabaseSeeder.SeedAsync(db);
-        System.Console.WriteLine("Terminaron de cargar las seeds");
+        Console.WriteLine("Terminaron de cargar las seeds");
     }
 }
 

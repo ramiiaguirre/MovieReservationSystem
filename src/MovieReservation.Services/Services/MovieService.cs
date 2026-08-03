@@ -1,4 +1,4 @@
-﻿using MovieReservation.Domain;
+using MovieReservation.Domain;
 
 namespace MovieReservation.Services;
 
@@ -17,7 +17,7 @@ public class MovieService : IMovieService
         if (movie.Result is not null)
             throw new Exception($"Movie called {request.Name} already exist.");
 
-        var movieCreated = await _repository.Add(new Movie(request.Name, request.Description));
+        var movieCreated = await _repository.Add(new Movie(request.Name, request.Genre, request.Description));
 
         await _repository.Save();
 
@@ -32,7 +32,7 @@ public class MovieService : IMovieService
         }
         await _repository.Delete(id);
         await _repository.Save();
-        return true;        
+        return true;
     }
 
     public async Task<MovieResponse?> GetMovie(long id)
@@ -44,20 +44,13 @@ public class MovieService : IMovieService
         return MovieResponse.FromMovie(movie);
     }
 
-    public async Task<IEnumerable<MovieResponse>> GetMovies()
+    public async Task<IEnumerable<MovieResponse>> GetMovies(Genre? genre = null)
     {
-        var movies = await _repository.GetAll();
+        var movies = genre is null
+            ? await _repository.GetAll()
+            : await _repository.Find(m => m.Genre == genre);
+
         return movies.Select((m) => MovieResponse.FromMovie(m));
-    }
-
-    public Task<IEnumerable<MovieResponse>> GetShowTimesOfMovie(long id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<MovieResponse>> GetShowTimesOfMovie(long id, DateTime dateTime)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<MovieResponse?> UpdateMovie(MovieUpdateRequest request)
@@ -71,9 +64,12 @@ public class MovieService : IMovieService
 
         if (request.Name is not null)
             movie.SetName(request.Name);
-        
+
+        if (request.Genre is not null)
+            movie.SetGenre(request.Genre.Value);
+
         movie.SetDescription(request.Description);
-        
+
         movie = await _repository.Update(movie);
 
          await _repository.Save();

@@ -13,7 +13,7 @@ public class MovieShould
     public void ValidateAllowNames(string name)
     {
         //Act
-        Movie movie = new Movie(name);
+        Movie movie = new Movie(name, Genre.Drama);
 
         //Assert
         Assert.Equal(name.Trim(), movie.Name);
@@ -25,7 +25,7 @@ public class MovieShould
     [InlineData(null)]
     public void ValidateUnauthorizedName(string? name)
     {
-        var ex = Assert.Throws<ArgumentException>(() => new Movie(name!));
+        var ex = Assert.Throws<ArgumentException>(() => new Movie(name!, Genre.Drama));
         Assert.Contains("Name cannot be empty", ex.Message);
     }
 
@@ -37,7 +37,7 @@ public class MovieShould
     public void ThrowException_WhenNameExceedsMaxLength(int length)
     {
         var longName = new string('a', length);
-        var ex = Assert.Throws<ArgumentException>(() => new Movie(longName));
+        var ex = Assert.Throws<ArgumentException>(() => new Movie(longName, Genre.Drama));
         Assert.Contains($"Name cannot exceed {Movie.NameMaxLength} characters", ex.Message);
     }
 
