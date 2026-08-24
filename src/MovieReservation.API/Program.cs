@@ -99,7 +99,10 @@ using (var scope = app.Services.CreateScope())
 
 app.UseExceptionHandler();
 
-app.UseHttpsRedirection();
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 
