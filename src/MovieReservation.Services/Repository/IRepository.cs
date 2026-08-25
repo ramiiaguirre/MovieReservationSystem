@@ -6,6 +6,8 @@ public interface IRepository<T> where T : class
 {
     Task<T?> Get(long id);
     Task<T?> Get(string name);
+    Task<T?> Get(long id, params Expression<Func<T, object>>[] includes);
+    Task<T?> FindOne(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
     Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
     Task<IEnumerable<T>> GetAll();
     Task<T> Add(T data);

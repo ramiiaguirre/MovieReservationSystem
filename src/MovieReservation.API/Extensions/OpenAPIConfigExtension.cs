@@ -12,10 +12,24 @@ public static class OpenAPIConfigExtension
 
     public static IServiceCollection AddOpenApiCustomConfig(this IServiceCollection services)
     {
-
         services.AddOpenApi((options) =>
         {
-            
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            {
+                // Esquema de seguridad Bearer para que Scalar muestre el botón de autenticación
+                var components = document.Components ??= new OpenApiComponents();
+                components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Token JWT de autenticación"
+                };
+
+                return Task.CompletedTask;
+            });
+
             options.AddOperationTransformer((operation, context, ct) =>
             {
                 var problemDetailsSchema = new OpenApiSchemaReference("ProblemDetails");               

@@ -7,5 +7,5 @@ public class User
 
     public string Password { get; set; } = default!;
 
-    public IEnumerable<Rol>? Roles { get; set; }
+    public ICollection<Rol>? Roles { get; set; }
 }

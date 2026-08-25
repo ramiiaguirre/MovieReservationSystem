@@ -1,4 +1,3 @@
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +67,7 @@ builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IShowTimeService, ShowTimeService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

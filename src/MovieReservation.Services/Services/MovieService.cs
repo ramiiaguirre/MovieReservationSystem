@@ -12,7 +12,8 @@ public class MovieService : IMovieService
 
     public async Task<MovieResponse> CreateMovie(MovieCreateRequest request)
     {
-        var movie = _repository.Get(request.Name);
+        // var movie = _repository.Get(request.Name);
+        var movie = _repository.FindOne(m => m.Name == request.Name);
 
         if (movie.Result is not null)
             throw new Exception($"Movie called {request.Name} already exist.");

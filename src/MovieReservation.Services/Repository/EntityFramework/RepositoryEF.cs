@@ -5,7 +5,7 @@ namespace MovieReservation.Services;
 
 public class RepositoryEF<T> : IRepository<T> where T : class 
 {
-    private MovieReservationContext _dbContext;
+    private readonly MovieReservationContext _dbContext;
     private DbSet<T> _dbSet;
 
     public RepositoryEF(MovieReservationContext context)
@@ -22,6 +22,7 @@ public class RepositoryEF<T> : IRepository<T> where T : class
 
     public async Task Delete(long id)
     {
+        // await _dbSet.Where(e => EF.Property<long>(e, "Id") == id).ExecuteDeleteAsync();
         T? data = await _dbSet.FindAsync(id);
 
         if (data is not null)
@@ -30,12 +31,38 @@ public class RepositoryEF<T> : IRepository<T> where T : class
 
     public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {
-        var query = _dbContext.Set<T>().AsQueryable();
+        var query = _dbSet.AsQueryable();
 
         foreach (var include in includes)
             query = query.Include(include);
 
         return await query.Where(predicate).ToListAsync();
+    }
+
+    public async Task<T?> Get(long id, params Expression<Func<T, object>>[] includes)
+    {
+        if (includes.Length == 0)
+            return await _dbSet.FindAsync(id);   // aprovecha el caché del ChangeTracker
+
+        IQueryable<T> query = _dbSet;
+
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return await query.FirstOrDefaultAsync(e => EF.Property<long>(e, "Id") == id);
+    }
+
+    public async Task<T?> FindOne(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (includes.Length > 0)
+        {
+            foreach (var include in includes)
+                query = query.Include(include);
+        }
+
+        return await query.FirstOrDefaultAsync(predicate);
     }
 
     public async Task<T?> Get(long id)
@@ -62,11 +89,14 @@ public class RepositoryEF<T> : IRepository<T> where T : class
 
     public async Task<T> Update(T data)
     {
-        await Task.Run(() =>
-        {
-            _dbSet.Attach(data);
-            _dbContext.Entry(data).State = EntityState.Modified;            
-        });
+        // await Task.Run(() =>
+        // {
+        //     _dbSet.Attach(data);
+        //     _dbContext.Entry(data).State = EntityState.Modified;            
+        // });
+        _dbSet.Update(data); // Attach + State
+
+        // return Task.FromResult(data);
         return data;
     }
 }
