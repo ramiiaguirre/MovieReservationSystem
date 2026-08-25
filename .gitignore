@@ -75,3 +75,7 @@ CLAUDE.md
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+
+## Movie Client
+# movie-client/*
