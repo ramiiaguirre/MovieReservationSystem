@@ -1,1 +1,0 @@
-public record Movie(long Id, string Name, Genre Genre, string? Description);
